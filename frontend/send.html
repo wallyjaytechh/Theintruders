@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Anonymous Message</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1 id="recipientName">Send Anonymous Message</h1>
+        
+        <div class="warning">
+            ⚠️ Your message will be anonymous to the recipient, 
+            but we track IP, device, and location for security.
+        </div>
+        
+        <div class="card">
+            <textarea id="message" placeholder="Type your anonymous message here..." 
+                     rows="6" style="width: 100%; padding: 15px; font-size: 16px;"></textarea>
+            
+            <button onclick="sendMessage()" style="margin-top: 20px;">
+                Send Anonymously
+            </button>
+            
+            <p style="margin-top: 20px; color: #666; font-size: 14px;">
+                Max 500 characters. No names will be shown to recipient.
+            </p>
+        </div>
+        
+        <div class="footer">
+            <a href="/">← Back to Home</a>
+        </div>
+    </div>
+    
+    <script src="js/fingerprint.js"></script>
+    <script>
+        // Get recipient from URL
+        const urlPath = window.location.pathname;
+        const recipient = urlPath.split('/send/')[1];
+        
+        if (recipient) {
+            document.getElementById('recipientName').textContent = 
+                `Send Anonymous Message to ${recipient}`;
+        }
+        
+        async function sendMessage() {
+            const message = document.getElementById('message').value;
+            
+            if (!message.trim()) {
+                alert('Please enter a message');
+                return;
+            }
+            
+            // Confirm tracking disclosure
+            const confirmSend = confirm(
+                '⚠️ IMPORTANT:\n\n' +
+                'Your message will appear anonymous, but:\n' +
+                '• Your IP address is logged\n' +
+                '• Your device info is recorded\n' +
+                '• Approximate location is tracked\n' +
+                '• Data is visible to admins only\n\n' +
+                'Click OK to send anonymously.'
+            );
+            
+            if (!confirmSend) return;
+            
+            try {
+                const result = await sendMessageWithTracking(recipient, message);
+                
+                if (result.success) {
+                    alert('✅ Message sent anonymously!');
+                    document.getElementById('message').value = '';
+                } else {
+                    alert('Failed to send message');
+                }
+            } catch (error) {
+                alert('Error sending message');
+            }
+        }
+    </script>
+</body>
+</html>

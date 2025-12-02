@@ -5,7 +5,7 @@ const MessageSchema = new mongoose.Schema({
   message: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
   
-  // TRACKING DATA (Hidden from recipients)
+  // TRACKING DATA
   ip: String,
   userAgent: String,
   browser: String,

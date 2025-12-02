@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Messages</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Your Anonymous Messages</h1>
+        
+        <div class="card">
+            <h3>Your Share Link</h3>
+            <div id="shareLink" style="background: #eee; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                Loading...
+            </div>
+            <button onclick="copyLink()">Copy Link</button>
+        </div>
+        
+        <h2 style="margin-top: 40px;">Messages</h2>
+        <div id="messagesContainer">
+            <p style="text-align: center; color: #666; padding: 40px;">
+                No messages yet. Share your link to receive anonymous messages!
+            </p>
+        </div>
+        
+        <div class="footer">
+            <a href="/">← Back to Home</a>
+        </div>
+    </div>
+    
+    <script>
+        // Get username from URL or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        let username = urlParams.get('user') || localStorage.getItem('ngl_username');
+        
+        if (!username) {
+            window.location.href = '/';
+        }
+        
+        // Set share link
+        document.getElementById('shareLink').innerHTML = 
+            `<strong>${window.location.origin}/send/${username}</strong>`;
+        
+        // Load messages
+        async function loadMessages() {
+            try {
+                const response = await fetch(`/api/messages/${username}`);
+                const messages = await response.json();
+                
+                const container = document.getElementById('messagesContainer');
+                
+                if (messages.length === 0) {
+                    container.innerHTML = `
+                        <p style="text-align: center; color: #666; padding: 40px;">
+                            No messages yet. Share your link!
+                        </p>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = '';
+                
+                messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = 'card';
+                    div.style.marginBottom = '15px';
+                    div.innerHTML = `
+                        <p style="font-size: 18px; margin-bottom: 10px;">${msg.message}</p>
+                        <small style="color: #888;">${new Date(msg.createdAt).toLocaleString()}</small>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error loading messages:', error);
+            }
+        }
+        
+        function copyLink() {
+            const link = `${window.location.origin}/send/${username}`;
+            navigator.clipboard.writeText(link);
+            alert('Link copied to clipboard!');
+        }
+        
+        // Load messages on page load
+        loadMessages();
+    </script>
+</body>
+</html>

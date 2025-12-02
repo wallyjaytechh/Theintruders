@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NGL Clone - Anonymous Messages</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Anonymous Messages</h1>
+        <p class="subtitle">Send and receive anonymous messages like NGL</p>
+        
+        <div class="warning">
+            ⚠️ Messages appear anonymous, but we track senders for security.
+        </div>
+        
+        <div class="main-actions">
+            <div class="card">
+                <h2>Get Your Link</h2>
+                <input type="text" id="username" placeholder="Choose username">
+                <input type="text" id="displayName" placeholder="Your display name">
+                <button onclick="createProfile()">Create Profile</button>
+                <p id="linkResult"></p>
+            </div>
+            
+            <div class="card">
+                <h2>Send Message</h2>
+                <input type="text" id="sendTo" placeholder="Username to message">
+                <button onclick="goToSend()">Send Anonymous Message</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <a href="/admin">Admin</a> | 
+            <a href="#" onclick="alert('We track IP, location, device info for security')">Privacy Info</a>
+        </div>
+    </div>
+    
+    <script src="js/app.js"></script>
+</body>
+</html>

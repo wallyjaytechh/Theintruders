@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .login-box { max-width: 400px; margin: 100px auto; }
+        .message-row { border-bottom: 1px solid #eee; padding: 15px 0; }
+        .tracking { background: #f5f5f5; padding: 10px; margin-top: 5px; font-size: 12px; }
+        .tracking-info { display: none; }
+    </style>
+</head>
+<body>
+    <div id="loginSection" class="container login-box">
+        <h2>Admin Login</h2>
+        <input type="text" id="adminUser" placeholder="Username">
+        <input type="password" id="adminPass" placeholder="Password">
+        <button onclick="login()">Login</button>
+    </div>
+    
+    <div id="adminPanel" class="container" style="display: none;">
+        <h1>Admin Panel</h1>
+        <p>Total Messages: <span id="totalCount">0</span></p>
+        
+        <div id="messagesList">
+            <!-- Messages will appear here -->
+        </div>
+    </div>
+    
+    <script>
+        async function login() {
+            const username = document.getElementById('adminUser').value;
+            const password = document.getElementById('adminPass').value;
+            
+            const response = await fetch('/api/admin/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadAdminData();
+            } else {
+                alert('Login failed');
+            }
+        }
+        
+        async function loadAdminData() {
+            const response = await fetch('/api/admin/messages');
+            const messages = await response.json();
+            
+            document.getElementById('totalCount').textContent = messages.length;
+            
+            const container = document.getElementById('messagesList');
+            container.innerHTML = '';
+            
+            messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = 'message-row';
+                div.innerHTML = `
+                    <strong>To:</strong> ${msg.to} | 
+                    <strong>When:</strong> ${new Date(msg.createdAt).toLocaleString()}
+                    <button onclick="showTracking('${msg._id}')">View Sender Info</button>
+                    
+                    <div class="tracking" id="tracking-${msg._id}" style="display: none;">
+                        <strong>IP:</strong> ${msg.ip || 'Unknown'}<br>
+                        <strong>Location:</strong> ${msg.city || ''} ${msg.country || ''}<br>
+                        <strong>Device:</strong> ${msg.browser} on ${msg.os}<br>
+                        <strong>User Agent:</strong> ${msg.userAgent}
+                    </div>
+                    
+                    <div style="margin: 10px 0; padding: 10px; background: #f8f9fa;">
+                        ${msg.message}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
+        function showTracking(messageId) {
+            const trackingDiv = document.getElementById(`tracking-${messageId}`);
+            trackingDiv.style.display = trackingDiv.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // Check if already logged in
+        if (localStorage.getItem('adminLoggedIn') === 'true') {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            loadAdminData();
+        }
+    </script>
+</body>
+</html>
